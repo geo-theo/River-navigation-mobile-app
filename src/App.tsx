@@ -1,9 +1,9 @@
 import { Asset } from "expo-asset";
 import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system";
+import { File as ExpoFile } from "expo-file-system";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 
 import sampleRouteAsset from "./data/Planned_GPX_track.gpx";
 import { HomeScreen } from "./screens/HomeScreen";
@@ -27,9 +27,7 @@ export default function App() {
     try {
       const asset = Asset.fromModule(sampleRouteAsset);
       await asset.downloadAsync();
-      const routeText = await FileSystem.readAsStringAsync(
-        asset.localUri ?? asset.uri
-      );
+      const routeText = await readTextFromUri(asset.localUri ?? asset.uri);
       const route = parseRouteFile(routeText, "Planned_GPX_track.gpx");
       setSampleRoute(route);
       return route;
@@ -64,6 +62,7 @@ export default function App() {
       const result = await DocumentPicker.getDocumentAsync({
         copyToCacheDirectory: true,
         multiple: false,
+        base64: false,
         type: [
           "application/gpx+xml",
           "application/vnd.google-earth.kml+xml",
@@ -82,7 +81,7 @@ export default function App() {
         return;
       }
 
-      const routeText = await FileSystem.readAsStringAsync(file.uri);
+      const routeText = await readPickedDocumentText(file);
       const route = parseRouteFile(routeText, file.name);
       setActiveRoute(route);
       setScreen("navigation");
@@ -110,6 +109,40 @@ export default function App() {
       )}
     </View>
   );
+}
+
+async function readPickedDocumentText(
+  file: DocumentPicker.DocumentPickerAsset
+): Promise<string> {
+  if (Platform.OS === "web" && file.file) {
+    return file.file.text();
+  }
+
+  if (Platform.OS === "web" && file.base64) {
+    return decodeBase64(file.base64);
+  }
+
+  return readTextFromUri(file.uri);
+}
+
+async function readTextFromUri(uri: string): Promise<string> {
+  if (Platform.OS === "web") {
+    const response = await fetch(uri);
+    if (!response.ok) {
+      throw new Error(`Unable to read file from ${uri}.`);
+    }
+    return response.text();
+  }
+
+  return new ExpoFile(uri).text();
+}
+
+function decodeBase64(value: string): string {
+  if (typeof atob === "function") {
+    return atob(value);
+  }
+
+  throw new Error("Unable to read that file in this browser.");
 }
 
 const styles = StyleSheet.create({
