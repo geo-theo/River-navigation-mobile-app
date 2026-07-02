@@ -27,6 +27,8 @@ npm install
 npm start
 ```
 
+See [STARTUP.md](C:/Users/theoj/Files/Github/River-navigation-mobile-app/STARTUP.md) for detailed browser, Expo Go, Android emulator, and verification instructions.
+
 Useful scripts:
 
 ```bash
