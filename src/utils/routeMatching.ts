@@ -99,20 +99,18 @@ export function updateRouteMatch({
   }
 
   if (closestPoint.distanceFromRouteMeters <= settings.corridorMeters) {
-    const progress = smoothDownstreamProgress(
+    const progressUpdate = smoothDownstreamProgress(
       previousMatch.lastReliableProgressMeters,
       closestPoint.distanceAlongRouteMeters
     );
-    const acceptedReliableProgress =
-      progress >= previousMatch.lastReliableProgressMeters;
-    const snappedPoint = acceptedReliableProgress
-      ? closestPoint.snappedPoint
-      : previousMatch.snappedPoint;
+    const progress = progressUpdate.progressMeters;
 
     return {
       match: {
         status: "On route",
-        snappedPoint,
+        snappedPoint: progressUpdate.accepted
+          ? closestPoint.snappedPoint
+          : previousMatch.snappedPoint,
         progressMeters: progress,
         remainingMeters: remainingDistanceMeters(
           route.totalDistanceMeters,
@@ -120,17 +118,17 @@ export function updateRouteMatch({
         ),
         distanceFromRouteMeters: closestPoint.distanceFromRouteMeters,
         gpsAccuracyMeters,
-        segmentIndex: acceptedReliableProgress
+        segmentIndex: progressUpdate.accepted
           ? closestPoint.segmentIndex
           : previousMatch.segmentIndex,
-        fractionAlongSegment: acceptedReliableProgress
+        fractionAlongSegment: progressUpdate.accepted
           ? closestPoint.fractionAlongSegment
           : previousMatch.fractionAlongSegment,
         lastReliableProgressMeters: progress,
         message: "Matched to the planned route corridor."
       },
       offRouteSinceMs: undefined,
-      acceptedReliableProgress
+      acceptedReliableProgress: progressUpdate.accepted
     };
   }
 
@@ -164,15 +162,30 @@ export function updateRouteMatch({
 function smoothDownstreamProgress(
   previousProgressMeters: number,
   nextProgressMeters: number
-): number {
+): { progressMeters: number; accepted: boolean } {
   /*
    * The prototype assumes a downstream float, so small backward jumps are
    * usually GPS noise. A future version could accept sustained backtracking
    * after several consistent updates.
    */
-  if (nextProgressMeters + BACKWARD_NOISE_TOLERANCE_METERS < previousProgressMeters) {
-    return previousProgressMeters;
+  const backwardDeltaMeters = previousProgressMeters - nextProgressMeters;
+
+  if (backwardDeltaMeters > BACKWARD_NOISE_TOLERANCE_METERS) {
+    return {
+      progressMeters: previousProgressMeters,
+      accepted: false
+    };
   }
 
-  return Math.max(previousProgressMeters, nextProgressMeters);
+  if (backwardDeltaMeters >= 0) {
+    return {
+      progressMeters: previousProgressMeters,
+      accepted: false
+    };
+  }
+
+  return {
+    progressMeters: nextProgressMeters,
+    accepted: true
+  };
 }

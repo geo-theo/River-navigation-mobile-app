@@ -8,7 +8,9 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test \"src/**/*.test.ts\"",
+    "verify": "npm run typecheck && npm test"
   },
   "dependencies": {
     "@xmldom/xmldom": "^0.9.10",
@@ -27,8 +29,10 @@
     "react-native-web": "^0.21.2"
   },
   "devDependencies": {
+    "@types/node": "^26.1.0",
     "@types/react": "~19.2.2",
     "babel-preset-expo": "~57.0.1",
+    "tsx": "^4.22.4",
     "typescript": "~6.0.3"
   }
 }

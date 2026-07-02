@@ -1,6 +1,7 @@
 node_modules/
 .expo/
 .expo-start*.log
+.expo-web*.log
 dist/
 web-build/
 npm-debug.*
