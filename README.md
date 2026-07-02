@@ -1,5 +1,18 @@
 # River-navigation-mobile-app
 
+## Prototype implementation
+
+This repo contains the Expo + React Native + TypeScript prototype for **RiverNav Prototype**.
+
+Run it with:
+
+```bash
+npm install
+npm start
+```
+
+Metro is configured for the bundled GPX/KML assets. The uploaded `Planned_GPX_track.gpx` was not present in the workspace attachments, so `src/data/Planned_GPX_track.gpx` is a generated Clearwater sample with the requested route name, Put-in/Take-out waypoints, 133 track points, and an approximate 2.55 mi / 4.10 km length. Replace that file with the real uploaded GPX when available.
+
 Build a mobile app prototype called **RiverNav Prototype**.
 
 The app should be a simple river route-following navigation tool, not turn-by-turn road navigation. The goal is to let a user load a planned GPX/KML river float route, see that planned route over a satellite/hybrid map, see their live GPS location, see a “ghost” snapped route-position marker, and estimate remaining distance, time remaining, and ETA to the take-out.

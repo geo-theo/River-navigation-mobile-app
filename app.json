@@ -1,0 +1,31 @@
+{
+  "expo": {
+    "name": "RiverNav Prototype",
+    "slug": "rivernav-prototype",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "scheme": "rivernav",
+    "userInterfaceStyle": "automatic",
+    "backgroundColor": "#071014",
+    "ios": {
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "RiverNav uses your GPS location to compare your actual position with the planned river route."
+      }
+    },
+    "android": {
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "plugins": [
+      "expo-location",
+      "expo-document-picker"
+    ],
+    "web": {
+      "bundler": "metro"
+    }
+  }
+}
